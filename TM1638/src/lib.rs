@@ -50,7 +50,6 @@ impl <'d, const STB: usize, CLK: Pin, DIO: Pin> TM1638 <'d, STB, CLK, DIO> {
                 1 => { self.stb[i].set_low(); }
                 _ => {}
             }
-            self.stb[i].set_low();
         }
     }
 
@@ -124,12 +123,12 @@ impl <'d, const STB: usize, CLK: Pin, DIO: Pin> TM1638 <'d, STB, CLK, DIO> {
             _ => { EMPTY }
         };
         let v = val as u8 | if point { POINT as u8 } else { 0 };
-        self.command(convert_to_bin(v as u8));
+        self.command(convert_to_bin(v));
     }
 
     pub fn write(&mut self, mut address: u8, text: &str){
         self.select_address(address);
-        for c in text.chars(){
+        for c in text.chars() {
             self.set_segment(address, c, false);
             address+=2;
             address%=16 * STB as u8;

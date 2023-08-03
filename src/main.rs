@@ -48,6 +48,7 @@ impl <
     }
 
     fn reset(&mut self){
+        self.displays.display_on(7);
         self.displays.clean();
         self.digits = [10; 16];
         self.position = 15;
@@ -91,7 +92,7 @@ impl <
 
     fn is_empty(&mut self) -> bool{
         for i in 0..16{
-            if self.digits == 1 { return false; }
+            if self.digits[i] == 1 { return false; }
         }
         return true;
     }
@@ -197,7 +198,7 @@ async fn main(_spawner: Spawner) -> ! {
         helper.press_any_key();
         helper.second_step();
         helper.press_any_key();
-        while !helper.is_finished {
+        while !helper.is_finished() {
             helper.third_step();
             helper.press_any_key();
             helper.forth_step();
