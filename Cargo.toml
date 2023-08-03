@@ -1,0 +1,44 @@
+[package]
+name = "abc"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[workspace]
+members = ["tm1638", "keyboard"]
+
+[workspace.dependencies.embassy-stm32]
+version = "0.1.0"
+git = "https://github.com/embassy-rs/embassy.git"
+features = ["nightly", "stm32f411ce", "time-driver-any", "exti"]
+
+[workspace.dependencies.embassy-time]
+version = "0.1.0"
+git = "https://github.com/embassy-rs/embassy.git"
+features = ["defmt"]
+
+[dependencies.embassy-sync]
+version = "0.2.0"
+git = "https://github.com/embassy-rs/embassy.git"
+features = ["nightly"]
+
+[dependencies.embassy-executor]
+version = "0.2.0"
+git = "https://github.com/embassy-rs/embassy.git"
+features = ["nightly", "defmt", "integrated-timers", "arch-cortex-m", "executor-thread"]
+
+[dependencies]
+keyboard = { path = "keyboard" }
+tm1638 = { path = "tm1638" }
+
+embassy-stm32.workspace = true
+embassy-time.workspace = true
+
+anyhow = { version = "1.0.71", default-features = false }
+cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
+cortex-m-rt = "0.7.3"
+defmt = "0.3.4"
+defmt-rtt = "0.4.0"
+panic-probe = "0.3.1"
+
