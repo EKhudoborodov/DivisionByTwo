@@ -8,7 +8,7 @@ use embassy_stm32::{
     self,
     gpio::{Level, Input, Output, Speed, Pin, AnyPin},
 };
-use embassy_time::{Duration, Timer};
+//use embassy_time::{Duration, Timer};
 use tm1638::TM1638;
 use keyboard::Keyboard;
 

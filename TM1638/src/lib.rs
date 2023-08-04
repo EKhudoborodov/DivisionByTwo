@@ -45,10 +45,9 @@ impl <'d, const STB: usize, CLK: Pin, DIO: Pin> TM1638 <'d, STB, CLK, DIO> {
 
     fn listen(&mut self, s: [u8; STB]) {
         for i in 0..STB {
-            match s[i] {
-                0 => { self.stb[i].set_high(); }
-                1 => { self.stb[i].set_low(); }
-                _ => {}
+            self.stb[i].set_high();
+            if s[i] == 1 {
+                self.stb[i].set_low();
             }
         }
     }
