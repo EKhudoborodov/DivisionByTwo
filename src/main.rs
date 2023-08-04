@@ -53,7 +53,7 @@ impl <
         self.digits = [10; 16];
         self.position = 15;
         self.displays.write(0, "insert");
-        self.displays.write(18, "number");
+        self.displays.write(20, "number");
     }
 
     fn convert_to_char(&mut self, number: u8) -> char {

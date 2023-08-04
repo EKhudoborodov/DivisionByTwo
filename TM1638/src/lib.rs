@@ -25,8 +25,9 @@ fn convert_to_bin(n: u8) -> [u8; 8]{
 
 impl <'d, const STB: usize, CLK: Pin, DIO: Pin> TM1638 <'d, STB, CLK, DIO> {
     pub fn new(s: [AnyPin; STB], c: CLK, d: DIO) -> Self {
-        let clk = Output::new(c, Level::Low, Speed::Low);
+        let mut clk = Output::new(c, Level::Low, Speed::Low);
         let mut dio = Flex::new(d);
+        clk.set_low();
         dio.set_as_input_output(Speed::Low, Pull::Up);
         Self { stb: s.map(init), clk, dio }
     }
@@ -74,7 +75,7 @@ impl <'d, const STB: usize, CLK: Pin, DIO: Pin> TM1638 <'d, STB, CLK, DIO> {
 
     pub fn clean(&mut self) {
         self.listen([1; STB]);
-        for i in 0..17 {
+        for i in 0..18 {
             self.command([0; 8]);
         }
         self.listen([0; STB]);
