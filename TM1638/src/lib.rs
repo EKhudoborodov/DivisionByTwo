@@ -33,7 +33,7 @@ impl <'d, const STB: usize, CLK: Pin, DIO: Pin> TM1638 <'d, STB, CLK, DIO> {
 
     fn command(&mut self, byte: [u8; 8]) {
         for i in 0..8 {
-            match byte[i] {
+            match byte[7-i] {
                 0 => { self.dio.set_low(); }
                 1 => { self.dio.set_high(); }
                 _ => {}
