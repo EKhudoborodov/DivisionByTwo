@@ -68,6 +68,7 @@ impl <
         self.displays.clean();
         loop {
             let key = self.keyboard_fonts[self.keyboard.get_key() as usize];
+            println!("{}", key);
             let c = self.convert_to_char(key);
             if c == ' ' {
                 match key {
@@ -92,7 +93,7 @@ impl <
 
     fn is_empty(&mut self) -> bool{
         for i in 0..16{
-            if self.digits[i] == 1 { return false; }
+            if self.digits[i] != 10 { return false; }
         }
         return true;
     }
@@ -190,8 +191,8 @@ async fn main(_spawner: Spawner) -> ! {
     let fonts = [10, 1, 4, 7, 14, 11, 2, 5, 8, 0, 12, 3, 6, 9, 15, 13, 16, 17, 18, 19];
     let mut helper = DivisionHelper::new(stbs, p.PB7, p.PB6, columns, rows, fonts);
     loop {
-        helper.reset();
         while helper.is_empty() {
+            helper.reset();
             helper.insert_number();
         }
         helper.first_step();

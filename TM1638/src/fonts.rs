@@ -5,7 +5,7 @@ pub enum Symbols {
     DIGIT_0 = 0x3F,
     DIGIT_1 = 0x06,
     DIGIT_2 = 0x5B,
-    DIGIT_3 = 0x4F,
+    DIGIT_3 = 0x4F,     
     DIGIT_4 = 0x66,
     DIGIT_5 = 0x6D,
     DIGIT_6 = 0x7D,
