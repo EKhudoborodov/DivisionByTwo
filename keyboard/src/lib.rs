@@ -39,7 +39,7 @@ impl <'d, const ROWS: usize, const COLUMNS: usize> Keyboard<'d, ROWS, COLUMNS>{
         for i in 0..ROWS{
             for j in 0..COLUMNS{
                 if(keys[i][j] == 1){
-                    return (i*ROWS+j+1) as u8;
+                    return (i*COLUMNS+j) as u8;
                 }
             }
         }

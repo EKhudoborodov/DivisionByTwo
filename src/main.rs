@@ -133,17 +133,19 @@ impl <
 
     fn first_step(&mut self){
         for i in 1..16{
-            self.diodes[i] = self.digits[i-1]%2;
+            if self.digits[i] != 10 { self.diodes[i] = self.digits[i-1]%2; }
         }
         self.show();
     }
 
     fn second_step(&mut self){
         for i in 1..16{
-            let c = self.convert_to_char(self.digits[i]);
-            if self.diodes[i] == 0 {
-                self.displays.set_segment(((i-1)*2) as u8, c, true);
-                self.points[i-1] = 1;
+            if self.digits[i] != 10 {
+                let c = self.convert_to_char(self.digits[i]);
+                if self.diodes[i] == 0 {
+                    self.displays.set_segment(((i - 1) * 2) as u8, c, true);
+                    self.points[i - 1] = 1;
+                }
             }
         }
     }
@@ -151,6 +153,7 @@ impl <
     fn third_step(&mut self){
         self.diodes = [0; 16];
         for i in self.position..16 {
+            if self.digits[15-i] == 10 { break; }
             if self.points[15-i as usize] == 0 { break; }
             self.diodes[15-i as usize] = 1;
             self.position += 1;
@@ -162,6 +165,7 @@ impl <
         let mut cur = 1;
         let mut step: u8 = 0;
         for i in 0..self.position {
+            if self.digits[15-i] == 10 { self.position=15; break; }
             if self.diodes[15-i as usize]==1{
                 cur_num += self.digits[15-i as usize] as u32 * cur;
                 cur *= 10;
@@ -188,7 +192,7 @@ async fn main(_spawner: Spawner) -> ! {
     let stbs = [p.PB9.degrade(), p.PB8.degrade()];
     let columns = [p.PA9.degrade(), p.PA8.degrade(), p.PB15.degrade(), p.PB14.degrade()];
     let rows = [p.PA1.degrade(), p.PA2.degrade(), p.PA3.degrade(), p.PA4.degrade(), p.PA5.degrade()];
-    let fonts = [10, 1, 4, 7, 14, 11, 2, 5, 8, 0, 12, 3, 6, 9, 15, 13, 16, 17, 18, 19];
+    let fonts = [10, 11, 12, 13, 1, 2, 3, 16, 4, 5, 6, 17, 7, 8, 9, 18, 14, 0, 15, 19];
     let mut helper = DivisionHelper::new(stbs, p.PB7, p.PB6, columns, rows, fonts);
     loop {
         while helper.is_empty() {
