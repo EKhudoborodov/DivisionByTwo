@@ -51,9 +51,13 @@ impl <
         self.displays.display_on(7);
         self.displays.clean();
         self.digits = [10; 16];
+        self.points = [0; 16];
+        self.diodes = [0; 16];
         self.position = 15;
         self.displays.write(0, "insert");
         self.displays.write(20, "number");
+        self.keyboard_fonts[self.keyboard.get_key() as usize];
+        self.displays.clean();
     }
 
     fn convert_to_char(&mut self, number: u8) -> char {
@@ -64,19 +68,19 @@ impl <
     }
 
     fn insert_number(&mut self){
-        let key = self.keyboard_fonts[self.keyboard.get_key() as usize];
-        self.displays.clean();
         loop {
             let key = self.keyboard_fonts[self.keyboard.get_key() as usize];
-            println!("{}", key);
+            //println!("{}", key);
             let c = self.convert_to_char(key);
             if c == ' ' {
                 match key {
                     k if k == 12 || k == 18 => { self.reset(); }
                     13 => {
-                        self.move_right();
-                        self.position += 1;
-                        self.digits[self.position as usize] = 10;
+                        if self.position < 15 {
+                            self.move_right();
+                            self.position += 1;
+                            self.digits[self.position as usize] = 10;
+                        }
                     }
                     19 if self.digits[15] != 10 => {  break; }
                     _ => {}
@@ -107,18 +111,22 @@ impl <
     }
 
     fn move_right(&mut self){
-        for i in self.position+1..16 {
-            self.digits[i as usize] = self.digits[(i-1) as usize];
-            let c = self.convert_to_char(self.digits[i as usize]);
-            self.displays.set_segment(2*i as u8, c, false);
+        for i in 0..15 {
+            self.digits[15-i as usize] = self.digits[14-i as usize];
+            let c = self.convert_to_char(self.digits[15-i as usize]);
+            self.displays.set_segment(2*(15-i) as u8, c, false);
         }
     }
 
     fn show(&mut self){
+        let mut c:char = ' ';
         for i in 0..16{
             if self.diodes[i] == 1 {
-                self.displays.set_segment((2*i+1) as u8, '8', false);
+                c = '8';
+            }else{
+                c = ' ';
             }
+            self.displays.set_segment((2*i+1) as u8, c, false);
         }
     }
 
@@ -139,12 +147,12 @@ impl <
     }
 
     fn second_step(&mut self){
-        for i in 1..16{
+        for i in 0..15{
             if self.digits[i] != 10 {
                 let c = self.convert_to_char(self.digits[i]);
-                if self.diodes[i] == 0 {
-                    self.displays.set_segment(((i - 1) * 2) as u8, c, true);
-                    self.points[i - 1] = 1;
+                if self.diodes[i+1] == 0 {
+                    self.displays.set_segment(((i) * 2) as u8, c, true);
+                    self.points[i] = 1;
                 }
             }
         }
@@ -152,32 +160,61 @@ impl <
 
     fn third_step(&mut self){
         self.diodes = [0; 16];
-        for i in self.position..16 {
-            if self.digits[15-i] == 10 { break; }
-            if self.points[15-i as usize] == 0 { break; }
-            self.diodes[15-i as usize] = 1;
+        let mut flag = 0;
+        let tmp = self.position;
+        println!("{}", self.points);
+        println!("{}", self.diodes);
+        for i in tmp..16 {
+            if self.points[15-i as usize] == 1 && flag == 1 { break; }
             self.position += 1;
+            if self.digits[15-i as usize] == 10 {
+                if self.digits[16-i as usize] == 1 || self.points[16-i as usize] == 1 {
+                    self.position -= 1;
+                }
+                break;
+            }
+            self.diodes[15-i as usize] = 1;
+            flag = 1;
         }
+        self.show();
     }
 
     fn forth_step(&mut self){
         let mut cur_num = 0;
-        let mut cur = 1;
-        let mut step: u8 = 0;
-        for i in 0..self.position {
-            if self.digits[15-i] == 10 { self.position=15; break; }
-            if self.diodes[15-i as usize]==1{
-                cur_num += self.digits[15-i as usize] as u32 * cur;
-                cur *= 10;
+        let mut point:bool = false;
+        let tmp = self.position;
+        println!("{}", self.position);
+        let mut c: char = ' ';
+        for i in 0..tmp {
+            if self.digits[15-i as usize] == 10 {
+                self.position=15;
+                self.digits = [10; 16];
+                self.points = [0; 16];
+                self.diodes = [1; 16];
+                self.position = 15;
+                self.show();
+                break;
             }
-        }
-        cur_num /= 2;
-        cur /= 10;
-        while cur>0 {
-            let c = self.convert_to_char((cur_num/cur) as u8);
-            self.displays.set_segment((15-self.position as u8-step)*2, c, cur == 1);
-            step += 1;
-            cur /= 10;
+            if self.diodes[15-i as usize]==1{
+                cur_num = self.digits[15-i as usize] as u32;
+                if i != tmp-1 {
+                    cur_num += 10;
+                }
+                if cur_num / 2 == 0 {
+                    c = ' ';
+                    self.digits[15 - i as usize] = 10;
+                } else {
+                    self.digits[15 - i as usize] = cur_num as u8 / 2;
+                    c = self.convert_to_char(cur_num as u8 / 2);
+                }
+                if self.points[15-i as usize] == 1 {
+                    point = true;
+                } else {
+                    point = false;
+                }
+                self.displays.set_segment(2*(15-i) as u8, c, point);
+            }
+
         }
     }
 
